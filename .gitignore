@@ -1,0 +1,9 @@
+*.swp
+*.pyc
+tags
+build/
+test.py
+*.bmp
+*.jpg
+*.dng
+*.png
