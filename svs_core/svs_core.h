@@ -51,8 +51,7 @@ extern PyGetSetDef svs_core_Camera_getseters[];
 
 /* SVS Exceptions */
 extern PyObject *SVSError;
-extern PyObject *SVSTimeoutError;
-extern PyObject *SVSCaptureStatus;
+extern PyObject *SVSNoImagesError;
 
 /*
  * Camera stream callback

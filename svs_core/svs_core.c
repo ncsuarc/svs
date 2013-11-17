@@ -35,7 +35,7 @@
 
 /* SVS Exceptions */
 PyObject *SVSError;
-PyObject *SVSTimeoutError;
+PyObject *SVSNoImagesError;
 
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef svs_coremodule = {
@@ -92,10 +92,10 @@ PyMODINIT_FUNC initsvs_core(void) {
     Py_INCREF(SVSError);
     PyModule_AddObject(m, "SVSError", SVSError);
 
-    SVSTimeoutError = PyErr_NewExceptionWithDoc("svs_core.SVSTimeoutError",
-            "Raised when a camera operation times out.", SVSError, NULL);
-    Py_INCREF(SVSTimeoutError);
-    PyModule_AddObject(m, "SVSTimeoutError", SVSTimeoutError);
+    SVSNoImagesError = PyErr_NewExceptionWithDoc("svs_core.SVSNoImagesError",
+            "Raised when no more images are available.", SVSError, NULL);
+    Py_INCREF(SVSNoImagesError);
+    PyModule_AddObject(m, "SVSNoImagesError", SVSNoImagesError);
 
     #if PY_MAJOR_VERSION >= 3
     return m;
