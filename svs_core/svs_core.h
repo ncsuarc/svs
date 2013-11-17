@@ -1,10 +1,17 @@
 #ifndef SVS_CORE_H_INCLUDED
 #define SVS_CORE_H_INCLUDED
 
+#include <pthread.h>
+#include <sys/queue.h>
 #include <svgige.h>
 
 /* Module methods */
 extern PyMethodDef svs_coreMethods[];
+
+struct image {
+    PyObject *timestamp;
+    TAILQ_ENTRY(image) entry;
+};
 
 /* Camera class */
 typedef struct {
@@ -13,13 +20,16 @@ typedef struct {
     uint32_t        width;
     uint32_t        height;
     /* Private elements */
+    int             ready;
     Camera_handle   handle;
     Stream_handle   stream;
     unsigned int    stream_ip;
     unsigned short  stream_port;
     int             depth;
     unsigned int    buffer_size;
-    int             ready;
+    uint64_t        tick_frequency;
+    TAILQ_HEAD(image_head, image) images;
+    pthread_mutex_t images_mutex;
 } svs_core_Camera;   /* Be sure to update svs_core_Camera_members with new entries */
 
 enum ready {
@@ -60,6 +70,15 @@ extern PyObject *SVSNoImagesError;
  */
 SVGigE_RETURN svs_core_Camera_stream_callback(SVGigE_SIGNAL *signal,
                                               void *context);
+
+/*
+ * Import datetime module
+ *
+ * This module is needed in svs_core_Camera_callback.c, but needs to be
+ * imported on a per-file basis, so provide a function to call from the
+ * main initialization.
+ */
+void import_datetime(void);
 
 /* Utility functions */
 

@@ -65,6 +65,7 @@ PyMODINIT_FUNC initsvs_core(void) {
     }
 
     import_array();
+    import_datetime();
 
     #if PY_MAJOR_VERSION >= 3
     m = PyModule_Create(&svs_coremodule);

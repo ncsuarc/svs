@@ -27,6 +27,8 @@
 
 #include <Python.h>
 #include <structmember.h>
+#include <pthread.h>
+#include <sys/queue.h>
 #include <svgige.h>
 #include "svs_core.h"
 
@@ -117,6 +119,9 @@ static int svs_core_Camera_init(svs_core_Camera *self, PyObject *args, PyObject 
 
     self->ready = NOT_READY;
 
+    TAILQ_INIT(&self->images);
+    pthread_mutex_init(&self->images_mutex, NULL);
+
     /*
      * This means the definition is:
      * def __init__(self, ip, source_ip, buffer_count=10, packet_size=9000):
@@ -136,6 +141,12 @@ static int svs_core_Camera_init(svs_core_Camera *self, PyObject *args, PyObject 
     }
 
     self->ready = CONNECTED;
+
+    ret = Camera_getTimestampTickFrequency(self->handle, &self->tick_frequency);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
 
     ret = Camera_getImagerWidth(self->handle, &self->width);
     if (ret != SVGigE_SUCCESS) {

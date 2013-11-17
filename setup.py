@@ -30,7 +30,7 @@ from distutils.core import setup, Extension
 svs_core = Extension("svs_core",
                      extra_compile_args = ['-std=gnu99', '-g3'],
                      library_dirs = ['/usr/local/lib/'],
-                     libraries = ['svgige'],
+                     libraries = ['svgige', 'm'],
                      sources = [
                             'svs_core/svs_core.c',
                             'svs_core/svs_core_methods.c',

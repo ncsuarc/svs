@@ -26,8 +26,9 @@
  */
 
 #include <Python.h>
+#include <pthread.h>
+#include <sys/queue.h>
 #include <svgige.h>
-
 #include "svs_core.h"
 
 static PyObject *svs_core_Camera_close(svs_core_Camera *self, PyObject *args, PyObject *kwds) {
@@ -50,7 +51,30 @@ static PyObject *svs_core_Camera_close(svs_core_Camera *self, PyObject *args, Py
 }
 
 static PyObject *svs_core_Camera_next(svs_core_Camera *self, PyObject *args, PyObject *kwds) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
+    struct image *image;
+    PyObject *timestamp;
+
+    pthread_mutex_lock(&self->images_mutex);
+
+    if (TAILQ_EMPTY(&self->images)) {
+        goto out_no_imgs;
+    }
+
+    image = TAILQ_FIRST(&self->images);
+    TAILQ_REMOVE(&self->images, image, entry);
+
+    pthread_mutex_unlock(&self->images_mutex);
+
+    timestamp = image->timestamp;
+
+    free(image);
+
+    return timestamp;
+
+out_no_imgs:
+    pthread_mutex_unlock(&self->images_mutex);
+
+    PyErr_SetString(SVSNoImagesError, "No images available");
     return NULL;
 }
 
