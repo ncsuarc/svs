@@ -27,7 +27,6 @@
 
 #include <Python.h>
 #include <structmember.h>
-#include <pthread.h>
 #include <sys/queue.h>
 #include <libsvgige/svgige.h>
 #include "svs_core.h"
@@ -117,10 +116,9 @@ static int svs_core_Camera_init(svs_core_Camera *self, PyObject *args, PyObject 
     uint32_t ip_num, source_ip_num;
     int ret;
 
+    self->main_thread = PyGILState_GetThisThreadState();
     self->ready = NOT_READY;
-
     TAILQ_INIT(&self->images);
-    pthread_mutex_init(&self->images_mutex, NULL);
 
     /*
      * This means the definition is:

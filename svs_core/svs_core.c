@@ -118,6 +118,11 @@ int main(int argc, char *argv[]) {
     /* Initialize the Python interpreter.  Required. */
     Py_Initialize();
 
+    /* Ensure the GIL has been created */
+    if (!PyEval_ThreadsInitialized()) {
+        PyEval_InitThreads();
+    }
+
     /* Add a static module */
     #if PY_MAJOR_VERSION >= 3
     PyInit_svs_core();

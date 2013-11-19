@@ -119,18 +119,26 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
                                                SVGigE_SIGNAL *signal) {
     SVGigE_IMAGE *svimage = signal->Data;
     struct image *image;
+    PyGILState_STATE gstate;
 
     image = malloc(sizeof(*image));
     if (!image) {
         return SVGigE_OUT_OF_MEMORY;
     }
 
+    /* Grab the GIL */
+    gstate = PyGILState_Ensure();
+
     image->timestamp = image_timestamp(self, svimage);
+    if (!image->timestamp) {
+        return SVGigE_ERROR;
+    }
 
     /* Add image to queue */
-    pthread_mutex_lock(&self->images_mutex);
     TAILQ_INSERT_TAIL(&self->images, image, entry);
-    pthread_mutex_unlock(&self->images_mutex);
+
+    /* Release the GIL */
+    PyGILState_Release(gstate);
 
     return SVGigE_SUCCESS;
 }
