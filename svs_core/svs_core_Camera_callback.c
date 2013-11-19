@@ -244,12 +244,12 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
 
     image->info = image_info(self, svimage);
     if (!image->info) {
-        return SVGigE_ERROR;
+        goto err_free_image;
     }
 
     image->array = image_array(self, svimage);
     if (!image->array) {
-        return SVGigE_ERROR;
+        goto err_free_image;
     }
 
     /* Add image to queue */
@@ -259,6 +259,10 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
     PyGILState_Release(gstate);
 
     return SVGigE_SUCCESS;
+
+err_free_image:
+    free(image);
+    return SVGigE_ERROR;
 }
 
 SVGigE_RETURN svs_core_Camera_stream_callback(SVGigE_SIGNAL *signal,
