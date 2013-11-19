@@ -149,6 +149,7 @@ static PyObject *image_info(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
 
     timestamp = image_timestamp(self, svimage);
     if (!timestamp) {
+        Py_DECREF(dict);
         return NULL;
     }
 
@@ -168,6 +169,15 @@ static PyObject *image_info(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
     PyDict_SetItemString(dict, "packet_count", packet_count);
     PyDict_SetItemString(dict, "packet_resend", packet_resend);
     PyDict_SetItemString(dict, "transfer_time", transfer_time);
+
+    Py_DECREF(timestamp);
+    Py_DECREF(width);
+    Py_DECREF(height);
+    Py_DECREF(image_count);
+    Py_DECREF(frame_loss);
+    Py_DECREF(packet_count);
+    Py_DECREF(packet_resend);
+    Py_DECREF(transfer_time);
 
     return dict;
 }
@@ -249,7 +259,7 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
 
     image->array = image_array(self, svimage);
     if (!image->array) {
-        goto err_free_image;
+        goto err_decref_info;
     }
 
     /* Add image to queue */
@@ -260,6 +270,8 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
 
     return SVGigE_SUCCESS;
 
+err_decref_info:
+    Py_DECREF(image->info);
 err_free_image:
     free(image);
     return SVGigE_ERROR;

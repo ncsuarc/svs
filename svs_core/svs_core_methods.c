@@ -85,7 +85,22 @@ SVGigE_RETURN camera_discovery_callback(SVGigE_SIGNAL *signal, void *context) {
     PyDict_SetItemString(dict, "pixel_type", pixel_type);
     PyDict_SetItemString(dict, "pixel_depth", pixel_depth);
 
+    Py_DECREF(local_ip);
+    Py_DECREF(ip);
+    Py_DECREF(subnet);
+    Py_DECREF(mac);
+    Py_DECREF(manufacturer);
+    Py_DECREF(model);
+    Py_DECREF(specific_information);
+    Py_DECREF(device_version);
+    Py_DECREF(serial_number);
+    Py_DECREF(user_name);
+    Py_DECREF(pixel_type);
+    Py_DECREF(pixel_depth);
+
     PyList_Append(list, dict);
+
+    Py_DECREF(dict);
 
     return SVGigE_SUCCESS;
 }
@@ -115,6 +130,7 @@ static PyObject *svs_core_camera_list(PyObject *self, PyObject *args) {
             if (!PyErr_Occurred()) {
                 raise_general_error(ret);
             }
+            Py_DECREF(list);
             return NULL;
         }
     }
