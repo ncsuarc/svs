@@ -10,7 +10,7 @@ extern PyMethodDef svs_coreMethods[];
 
 struct image {
     PyObject *array;
-    PyObject *timestamp;
+    PyObject *info;
     TAILQ_ENTRY(image) entry;
 };
 

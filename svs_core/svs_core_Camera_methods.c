@@ -61,10 +61,10 @@ static PyObject *svs_core_Camera_next(svs_core_Camera *self, PyObject *args, PyO
     image = TAILQ_FIRST(&self->images);
     TAILQ_REMOVE(&self->images, image, entry);
 
-    ret = Py_BuildValue("(OO)", image->array, image->timestamp);
+    ret = Py_BuildValue("(OO)", image->array, image->info);
 
     Py_DECREF(image->array);
-    Py_DECREF(image->timestamp);
+    Py_DECREF(image->info);
 
     free(image);
 

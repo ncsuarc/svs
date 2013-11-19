@@ -75,7 +75,7 @@ static void timestamp_to_timeval(svs_core_Camera *self, uint64_t timestamp,
  *
  * @param self  Camera object
  * @param boot  Camera boot time returned here
- * @returns 0 on success, negative on error
+ * @returns 0 on success, negative on error, and sets asynchronous exception
  */
 static int camera_boot_time(svs_core_Camera *self, struct timeval *boot) {
     uint64_t ticks;
@@ -99,7 +99,11 @@ static int camera_boot_time(svs_core_Camera *self, struct timeval *boot) {
 }
 
 /*
- * Return a DateTime object of the time when the image was captured.
+ * Create a DateTime object of the time when the image was captured.
+ *
+ * @param self      Camera object
+ * @param svimage   Image
+ * @returns DateTime object, or NULL on error and sets asynchronous exception
  */
 static PyObject *image_timestamp(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
     struct timeval camera_boot, image_delta, image_timestamp;
@@ -125,6 +129,47 @@ static PyObject *image_timestamp(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
             timestamp.tm_min, timestamp.tm_sec, image_timestamp.tv_usec);
 
     return image_datetime;
+}
+
+/*
+ * Create a dictionary with various image metadata.
+ *
+ * @param self      Camera object
+ * @param svimage   Image
+ * @returns dict object, or NULL on error and sets asynchronous exception
+ */
+static PyObject *image_info(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
+    PyObject *dict, *timestamp;
+
+    dict = PyDict_New();
+    if (!dict) {
+        raise_asynchronous_exception(self);
+        return NULL;
+    }
+
+    timestamp = image_timestamp(self, svimage);
+    if (!timestamp) {
+        return NULL;
+    }
+
+    PyObject *width = Py_BuildValue("i", svimage->ImageWidth);
+    PyObject *height = Py_BuildValue("i", svimage->ImageHeight);
+    PyObject *image_count = Py_BuildValue("i", svimage->ImageCount);
+    PyObject *frame_loss = Py_BuildValue("i", svimage->FrameLoss);
+    PyObject *packet_count = Py_BuildValue("i", svimage->PacketCount);
+    PyObject *packet_resend = Py_BuildValue("i", svimage->PacketResend);
+    PyObject *transfer_time = Py_BuildValue("i", svimage->TransferTime);
+
+    PyDict_SetItemString(dict, "timestamp", timestamp);
+    PyDict_SetItemString(dict, "width", width);
+    PyDict_SetItemString(dict, "height", height);
+    PyDict_SetItemString(dict, "image_count", image_count);
+    PyDict_SetItemString(dict, "frame_loss", frame_loss);
+    PyDict_SetItemString(dict, "packet_count", packet_count);
+    PyDict_SetItemString(dict, "packet_resend", packet_resend);
+    PyDict_SetItemString(dict, "transfer_time", transfer_time);
+
+    return dict;
 }
 
 static PyObject *image_array(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
@@ -197,8 +242,8 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
     /* Grab the GIL */
     gstate = PyGILState_Ensure();
 
-    image->timestamp = image_timestamp(self, svimage);
-    if (!image->timestamp) {
+    image->info = image_info(self, svimage);
+    if (!image->info) {
         return SVGigE_ERROR;
     }
 
