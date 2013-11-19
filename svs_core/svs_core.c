@@ -35,6 +35,7 @@
 
 /* SVS Exceptions */
 PyObject *SVSError;
+PyObject *SVSAsyncError;
 PyObject *SVSNoImagesError;
 
 #if PY_MAJOR_VERSION >= 3
@@ -92,6 +93,12 @@ PyMODINIT_FUNC initsvs_core(void) {
             NULL, NULL);
     Py_INCREF(SVSError);
     PyModule_AddObject(m, "SVSError", SVSError);
+
+    SVSAsyncError = PyErr_NewExceptionWithDoc("svs_core.SVSAsyncError",
+            "An asynchronous exception occurred in a callback.",
+            NULL, NULL);
+    Py_INCREF(SVSAsyncError);
+    PyModule_AddObject(m, "SVSAsyncError", SVSAsyncError);
 
     SVSNoImagesError = PyErr_NewExceptionWithDoc("svs_core.SVSNoImagesError",
             "Raised when no more images are available.", SVSError, NULL);

@@ -40,6 +40,21 @@ void import_datetime(void) {
     PyDateTime_IMPORT;
 }
 
+/*
+ * Asynchronously raise an exception in the main thread.
+ *
+ * Since the callbacks are called from a different thread, there is not
+ * a good way to indicate errors to the program.
+ *
+ * In the event of fatal problem, raise SVSAsyncError in the main thread.
+ * Note that this exception will probably not be caught, and should only be
+ * used when nothing else can be done.
+ */
+static void raise_asynchronous_exception(svs_core_Camera *self) {
+    PyThreadState_SetAsyncExc(self->main_thread->thread_id, SVSAsyncError);
+
+}
+
 static void timestamp_to_timeval(svs_core_Camera *self, uint64_t timestamp,
                                  struct timeval *tv) {
     double timestamp_sec = ((double)timestamp)/self->tick_frequency;
@@ -69,7 +84,7 @@ static int camera_boot_time(svs_core_Camera *self, struct timeval *boot) {
 
     ret = Camera_getTimestampCounter(self->handle, &ticks);
     if (ret != SVGigE_SUCCESS) {
-        raise_general_error(ret);
+        raise_asynchronous_exception(self);
         return -1;
     }
 

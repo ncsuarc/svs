@@ -61,6 +61,7 @@ extern PyGetSetDef svs_core_Camera_getseters[];
 
 /* SVS Exceptions */
 extern PyObject *SVSError;
+extern PyObject *SVSAsyncError;
 extern PyObject *SVSNoImagesError;
 
 /*
