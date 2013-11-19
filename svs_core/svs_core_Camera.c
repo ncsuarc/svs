@@ -29,7 +29,7 @@
 #include <structmember.h>
 #include <pthread.h>
 #include <sys/queue.h>
-#include <svgige.h>
+#include <libsvgige/svgige.h>
 #include "svs_core.h"
 
 /* Camera released when heartbeat missing this long (ms) */

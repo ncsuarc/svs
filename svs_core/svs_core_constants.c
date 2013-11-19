@@ -26,7 +26,6 @@
  */
 
 #include <Python.h>
-#include <svgige.h>
 
 #include "svs_core.h"
 

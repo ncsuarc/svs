@@ -28,7 +28,7 @@
 #include <Python.h>
 #include <pthread.h>
 #include <sys/queue.h>
-#include <svgige.h>
+#include <libsvgige/svgige.h>
 #include "svs_core.h"
 
 static PyObject *svs_core_Camera_close(svs_core_Camera *self, PyObject *args, PyObject *kwds) {

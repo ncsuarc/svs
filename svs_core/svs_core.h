@@ -3,7 +3,7 @@
 
 #include <pthread.h>
 #include <sys/queue.h>
-#include <svgige.h>
+#include <libsvgige/svgige.h>
 
 /* Module methods */
 extern PyMethodDef svs_coreMethods[];

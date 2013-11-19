@@ -33,7 +33,7 @@
 #include <sys/queue.h>
 #include <sys/time.h>
 #include <time.h>
-#include <svgige.h>
+#include <libsvgige/svgige.h>
 #include "svs_core.h"
 
 void import_datetime(void) {
