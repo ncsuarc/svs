@@ -76,7 +76,7 @@ PyMethodDef svs_core_Camera_methods[] = {
         "close()\n\n"
         "Closes open camera.\n\n"
         "Raises:\n"
-        "    SVSError: An unknown error occured in the uEye SDK."
+        "    SVSError: An unknown error occured in the SVGigE SDK."
     },
     {"next", (PyCFunction) svs_core_Camera_next, METH_VARARGS,
         "next() -> image, metadata\n\n"
@@ -87,10 +87,7 @@ PyMethodDef svs_core_Camera_methods[] = {
         "    (image, metadata) tuple, where image is a Numpy array containing\n"
         "    the image, and metadata is a dictionary containing image metadata.\n\n"
         "Raises:\n"
-        "    SVSTimeoutError: An image was not available within the timeout.\n"
-        "    SVSError: An unknown error occured in the uEye SDK."
-        "    NotImplementedError: The current color format cannot be converted\n"
-        "        to a numpy array."
+        "    SVSNoImagesError: No images are available in the queue."
     },
     {NULL}
 };
