@@ -51,7 +51,7 @@ static PyObject *svs_core_Camera_close(svs_core_Camera *self, PyObject *args, Py
 
 static PyObject *svs_core_Camera_next(svs_core_Camera *self, PyObject *args, PyObject *kwds) {
     struct image *image;
-    PyObject *timestamp;
+    PyObject *ret;
 
     if (TAILQ_EMPTY(&self->images)) {
         PyErr_SetString(SVSNoImagesError, "No images available");
@@ -61,12 +61,14 @@ static PyObject *svs_core_Camera_next(svs_core_Camera *self, PyObject *args, PyO
     image = TAILQ_FIRST(&self->images);
     TAILQ_REMOVE(&self->images, image, entry);
 
+    ret = Py_BuildValue("(OO)", image->array, image->timestamp);
 
-    timestamp = image->timestamp;
+    Py_DECREF(image->array);
+    Py_DECREF(image->timestamp);
 
     free(image);
 
-    return timestamp;
+    return ret;
 }
 
 PyMethodDef svs_core_Camera_methods[] = {

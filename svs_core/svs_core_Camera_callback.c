@@ -25,8 +25,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define PY_ARRAY_UNIQUE_SYMBOL  svs_core_ARRAY_API
+#define NO_IMPORT_ARRAY
+
 #include <Python.h>
 #include <datetime.h>
+#include <numpy/arrayobject.h>
 #include <pthread.h>
 #include <math.h>
 #include <stdint.h>
@@ -123,6 +127,55 @@ static PyObject *image_timestamp(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
     return image_datetime;
 }
 
+static PyObject *image_array(svs_core_Camera *self, SVGigE_IMAGE *svimage) {
+    npy_intp dims[2] = {svimage->ImageHeight, svimage->ImageWidth};
+    PyArrayObject *array;
+    int ret, pixel_size, numpy_type, numpy_size, convert;
+
+    pixel_size = svimage->PixelType & GVSP_PIX_EFFECTIVE_PIXELSIZE_MASK;
+
+    switch (pixel_size) {
+    case GVSP_PIX_OCCUPY8BIT:
+        numpy_type = NPY_UINT8;
+        numpy_size = dims[0]*dims[1];
+        convert = 0;
+        break;
+    case GVSP_PIX_OCCUPY12BIT:
+        numpy_type = NPY_UINT16;
+        numpy_size = 2*dims[0]*dims[1];
+        convert = 1;
+        break;
+    case GVSP_PIX_OCCUPY16BIT:
+        numpy_type = NPY_UINT16;
+        numpy_size = 2*dims[0]*dims[1];
+        convert = 0;
+        break;
+    default:
+        return NULL;
+    }
+
+    array = (PyArrayObject*)PyArray_SimpleNew(2, dims, numpy_type);
+    if (!array) {
+        raise_asynchronous_exception(self);
+        return NULL;
+    }
+
+    if (convert) {
+        ret = Image_getImage12bitAs16bit(svimage->ImageData, dims[1], dims[0],
+                svimage->PixelType, PyArray_DATA(array), 2*dims[0]*dims[1]);
+        if (ret) {
+            raise_asynchronous_exception(self);
+            Py_DECREF((PyObject*)array);
+            return NULL;
+        }
+    }
+    else {
+        memcpy(PyArray_DATA(array), svimage->ImageData, numpy_size);
+    }
+
+    return (PyObject *) array;
+}
+
 /*
  * New image handler
  *
@@ -146,6 +199,11 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
 
     image->timestamp = image_timestamp(self, svimage);
     if (!image->timestamp) {
+        return SVGigE_ERROR;
+    }
+
+    image->array = image_array(self, svimage);
+    if (!image->array) {
         return SVGigE_ERROR;
     }
 
