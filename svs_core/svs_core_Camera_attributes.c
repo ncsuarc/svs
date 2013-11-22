@@ -31,8 +31,51 @@
 #include "svs_core.h"
 
 PyObject *svs_core_Camera_getinfo(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
+    PyObject *dict = PyDict_New();
+    if (!dict) {
+        return NULL;
+    }
+
+    PyObject *manufacturer = Py_BuildValue("s",
+            Camera_getManufacturerName(self->handle));
+    PyObject *model = Py_BuildValue("s",
+            Camera_getModelName(self->handle));
+    PyObject *device_version = Py_BuildValue("s",
+            Camera_getDeviceVersion(self->handle));
+    PyObject *specific_information = Py_BuildValue("s",
+            Camera_getManufacturerSpecificInformation(self->handle));
+    PyObject *serial_number = Py_BuildValue("s",
+            Camera_getSerialNumber(self->handle));
+    PyObject *user_name = Py_BuildValue("s",
+            Camera_getUserDefinedName(self->handle));
+    PyObject *ip = Py_BuildValue("s",
+            Camera_getIPAddress(self->handle));
+    PyObject *subnet_mask = Py_BuildValue("s",
+            Camera_getSubnetMask(self->handle));
+    PyObject *mac_address = Py_BuildValue("s",
+            Camera_getMacAddress(self->handle));
+
+    PyDict_SetItemString(dict, "manufacturer", manufacturer);
+    PyDict_SetItemString(dict, "model", model);
+    PyDict_SetItemString(dict, "device_version", device_version);
+    PyDict_SetItemString(dict, "specific_information", specific_information);
+    PyDict_SetItemString(dict, "serial_number", serial_number);
+    PyDict_SetItemString(dict, "user_name", user_name);
+    PyDict_SetItemString(dict, "ip", ip);
+    PyDict_SetItemString(dict, "subnet_mask", subnet_mask);
+    PyDict_SetItemString(dict, "mac_address", mac_address);
+
+    Py_DECREF(manufacturer);
+    Py_DECREF(model);
+    Py_DECREF(device_version);
+    Py_DECREF(specific_information);
+    Py_DECREF(serial_number);
+    Py_DECREF(user_name);
+    Py_DECREF(ip);
+    Py_DECREF(subnet_mask);
+    Py_DECREF(mac_address);
+
+    return dict;
 }
 
 static int svs_core_Camera_setinfo(svs_core_Camera *self, PyObject *value, void *closure) {
