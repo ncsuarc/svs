@@ -122,7 +122,14 @@ static PyObject *svs_core_Camera_getexposure(svs_core_Camera *self, void *closur
 
 static int svs_core_Camera_setexposure(svs_core_Camera *self, PyObject *value, void *closure) {
     int ret;
-    float exposure = PyFloat_AsDouble(value);   /* Exposure in milliseconds */
+    float exposure;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'exposure'");
+        return -1;
+    }
+
+    exposure = PyFloat_AsDouble(value);   /* Exposure in milliseconds */
     if (PyErr_Occurred()) {
         return -1;
     }
@@ -199,6 +206,11 @@ static int svs_core_Camera_setauto_exposure_min(svs_core_Camera *self, PyObject 
     float min, max;
     int ret;
 
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'auto_exposure_min'");
+        return -1;
+    }
+
     /* Get current min/max */
     ret = Camera_getAutoExposureLimits(self->handle, &min, &max);
     if (ret != SVGigE_SUCCESS) {
@@ -240,6 +252,11 @@ static int svs_core_Camera_setauto_exposure_max(svs_core_Camera *self, PyObject 
     float min, max;
     int ret;
 
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'auto_exposure_max'");
+        return -1;
+    }
+
     /* Get current min/max */
     ret = Camera_getAutoExposureLimits(self->handle, &min, &max);
     if (ret != SVGigE_SUCCESS) {
@@ -280,6 +297,11 @@ static PyObject *svs_core_Camera_getauto_exposure_brightness(svs_core_Camera *se
 static int svs_core_Camera_setauto_exposure_brightness(svs_core_Camera *self, PyObject *value, void *closure) {
     float brightness;
     int ret;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'auto_exposure_brightness'");
+        return -1;
+    }
 
     /* Brightness in range 0..255 */
     brightness = 255*PyFloat_AsDouble(value);
