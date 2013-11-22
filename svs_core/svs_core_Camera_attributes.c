@@ -69,12 +69,19 @@ static int svs_core_Camera_setheight(svs_core_Camera *self, PyObject *value, voi
 }
 
 static PyObject *svs_core_Camera_getpixelclock(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
+    int pixel_clock, ret;
+
+    ret = Camera_getPixelClock(self->handle, &pixel_clock);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    return PyLong_FromLong(pixel_clock);
 }
 
 static int svs_core_Camera_setpixelclock(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
+    PyErr_SetString(PyExc_TypeError, "Cannot modify attribute 'pixelclock'");
     return -1;
 }
 
