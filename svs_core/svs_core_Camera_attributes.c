@@ -264,13 +264,36 @@ static int svs_core_Camera_setauto_exposure_max(svs_core_Camera *self, PyObject 
 }
 
 static PyObject *svs_core_Camera_getauto_exposure_brightness(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
+    float brightness;
+    int ret;
+
+    ret = Camera_getAutoGainBrightness(self->handle, &brightness);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    /* Brightness in range 0..255 */
+    return PyFloat_FromDouble(brightness/255);
 }
 
 static int svs_core_Camera_setauto_exposure_brightness(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return -1;
+    float brightness;
+    int ret;
+
+    /* Brightness in range 0..255 */
+    brightness = 255*PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+
+    ret = Camera_setAutoGainBrightness(self->handle, brightness);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    return 0;
 }
 
 static PyObject *svs_core_Camera_getauto_speed(svs_core_Camera *self, void *closure) {
