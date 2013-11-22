@@ -29,6 +29,7 @@ typedef struct {
     int             depth;
     unsigned int    buffer_size;
     uint64_t        tick_frequency;
+    PyObject        *name;
     TAILQ_HEAD(image_head, image) images;   /* Locked with the GIL */
     PyThreadState   *main_thread;
 } svs_core_Camera;   /* Be sure to update svs_core_Camera_members with new entries */
@@ -36,6 +37,7 @@ typedef struct {
 enum ready {
     NOT_READY,
     CONNECTED,
+    NAME_ALLOCATED,
     READY,
 };
 

@@ -96,6 +96,8 @@ static void svs_core_Camera_dealloc(svs_core_Camera *self) {
     switch (self->ready) {
     case READY:
         closeStream(self->stream);
+    case NAME_ALLOCATED:
+        Py_DECREF(self->name);
     case CONNECTED:
         closeCamera(self->handle);
         break;
@@ -114,6 +116,7 @@ static int svs_core_Camera_init(svs_core_Camera *self, PyObject *args, PyObject 
     unsigned int buffer_count = 10;
     unsigned int packet_size = 9000;
     uint32_t ip_num, source_ip_num;
+    char *manufacturer, *model;
     int ret;
 
     self->main_thread = PyGILState_GetThisThreadState();
@@ -139,6 +142,28 @@ static int svs_core_Camera_init(svs_core_Camera *self, PyObject *args, PyObject 
     }
 
     self->ready = CONNECTED;
+
+    manufacturer = strdup(Camera_getManufacturerName(self->handle));
+    if (!manufacturer) {
+        PyErr_SetString(PyExc_MemoryError, "Unable to allocate name");
+        return -1;
+    }
+
+    model = strdup(Camera_getModelName(self->handle));
+    if (!model) {
+        free(manufacturer);
+        PyErr_SetString(PyExc_MemoryError, "Unable to allocate name");
+        return -1;
+    }
+
+    self->name = PyBytes_FromFormat("%s %s", manufacturer, model);
+    free(manufacturer);
+    free(model);
+    if (!self->name) {
+        return -1;
+    }
+
+    self->ready = NAME_ALLOCATED;
 
     ret = Camera_getTimestampTickFrequency(self->handle, &self->tick_frequency);
     if (ret != SVGigE_SUCCESS) {

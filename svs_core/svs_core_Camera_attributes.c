@@ -41,8 +41,8 @@ static int svs_core_Camera_setinfo(svs_core_Camera *self, PyObject *value, void 
 }
 
 PyObject *svs_core_Camera_getname(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
+    Py_INCREF(self->name);
+    return self->name;
 }
 
 static int svs_core_Camera_setname(svs_core_Camera *self, PyObject *value, void *closure) {
