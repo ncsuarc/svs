@@ -138,13 +138,47 @@ static int svs_core_Camera_setexposure(svs_core_Camera *self, PyObject *value, v
 }
 
 static PyObject *svs_core_Camera_getauto_exposure(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
+    bool autoexposure;
+    int ret;
+
+    ret = Camera_getAutoGainEnabled(self->handle, &autoexposure);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    if (autoexposure) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    }
+
+    Py_INCREF(Py_False);
+    return Py_False;
 }
 
 static int svs_core_Camera_setauto_exposure(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return -1;
+    bool autoexposure;
+    int ret;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'auto_exposure'");
+        return -1;
+    }
+
+    if (!PyBool_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "Auto exposure must be a bool.");
+        return -1;
+    }
+
+    autoexposure = (value == Py_True) ? 1 : 0;
+
+    ret = Camera_setAutoGainEnabled(self->handle, autoexposure);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    return 0;
 }
 
 static PyObject *svs_core_Camera_getauto_exposure_brightness(svs_core_Camera *self, void *closure) {
@@ -254,7 +288,7 @@ PyGetSetDef svs_core_Camera_getseters[] = {
         "bit depth.", NULL},
     {"gain", (getter) svs_core_Camera_getgain, (setter) svs_core_Camera_setgain, "Hardware gain (individual RGB gains not yet supported)", NULL},
     {"exposure", (getter) svs_core_Camera_getexposure, (setter) svs_core_Camera_setexposure, "Exposure time in milliseconds", NULL},
-    {"auto_exposure", (getter) svs_core_Camera_getauto_exposure, (setter) svs_core_Camera_setauto_exposure, "Auto exposure", NULL},
+    {"auto_exposure", (getter) svs_core_Camera_getauto_exposure, (setter) svs_core_Camera_setauto_exposure, "Auto exposure/gain", NULL},
     {"auto_exposure_brightness", (getter) svs_core_Camera_getauto_exposure_brightness, (setter) svs_core_Camera_setauto_exposure_brightness, "Auto exposure reference brightness (0 to 1)", NULL},
     {"auto_speed", (getter) svs_core_Camera_getauto_speed, (setter) svs_core_Camera_setauto_speed, "Auto speed", NULL},
     {"auto_white_balance", (getter) svs_core_Camera_getauto_white_balance, (setter) svs_core_Camera_setauto_white_balance, "Auto White Balance", NULL},
