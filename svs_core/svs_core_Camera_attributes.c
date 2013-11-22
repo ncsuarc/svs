@@ -128,16 +128,6 @@ static int svs_core_Camera_setpixelclock(svs_core_Camera *self, PyObject *value,
     return -1;
 }
 
-static PyObject *svs_core_Camera_getcolor_mode(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
-}
-
-static int svs_core_Camera_setcolor_mode(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return -1;
-}
-
 static PyObject *svs_core_Camera_getgain(svs_core_Camera *self, void *closure) {
     PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
     return NULL;
@@ -361,36 +351,6 @@ static int svs_core_Camera_setauto_exposure_brightness(svs_core_Camera *self, Py
     return 0;
 }
 
-static PyObject *svs_core_Camera_getauto_speed(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
-}
-
-static int svs_core_Camera_setauto_speed(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return -1;
-}
-
-static PyObject *svs_core_Camera_getauto_white_balance(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
-}
-
-static int svs_core_Camera_setauto_white_balance(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return -1;
-}
-
-static PyObject *svs_core_Camera_getcolor_correction(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
-}
-
-static int svs_core_Camera_setcolor_correction(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return -1;
-}
-
 static PyObject *svs_core_Camera_getcontinuous_capture(svs_core_Camera *self,
                                                        void *closure) {
     int ret;
@@ -450,21 +410,12 @@ PyGetSetDef svs_core_Camera_getseters[] = {
     {"width", (getter) svs_core_Camera_getwidth, (setter) svs_core_Camera_setwidth, "Image width", NULL},
     {"height", (getter) svs_core_Camera_getheight, (setter) svs_core_Camera_setheight, "Image height", NULL},
     {"pixelclock", (getter) svs_core_Camera_getpixelclock, (setter) svs_core_Camera_setpixelclock, "Pixel Clock of camera", NULL},
-    {"color_mode", (getter) svs_core_Camera_getcolor_mode, (setter) svs_core_Camera_setcolor_mode,
-        "Color mode of images.\n\n"
-        "It is recommended to change color mode only when not\n"
-        "capturing images, and to free and reallocate memory\n"
-        "after changing, as the new color mode may have a different\n"
-        "bit depth.", NULL},
     {"gain", (getter) svs_core_Camera_getgain, (setter) svs_core_Camera_setgain, "Hardware gain (individual RGB gains not yet supported)", NULL},
     {"exposure", (getter) svs_core_Camera_getexposure, (setter) svs_core_Camera_setexposure, "Exposure time in milliseconds", NULL},
     {"auto_exposure", (getter) svs_core_Camera_getauto_exposure, (setter) svs_core_Camera_setauto_exposure, "Auto exposure/gain", NULL},
     {"auto_exposure_min", (getter) svs_core_Camera_getauto_exposure_min, (setter) svs_core_Camera_setauto_exposure_min, "Minimum exposure for auto exposure (ms)", NULL},
     {"auto_exposure_max", (getter) svs_core_Camera_getauto_exposure_max, (setter) svs_core_Camera_setauto_exposure_max, "Maximum exposure for auto exposure (ms)", NULL},
     {"auto_exposure_brightness", (getter) svs_core_Camera_getauto_exposure_brightness, (setter) svs_core_Camera_setauto_exposure_brightness, "Auto exposure reference brightness (0 to 1)", NULL},
-    {"auto_speed", (getter) svs_core_Camera_getauto_speed, (setter) svs_core_Camera_setauto_speed, "Auto speed", NULL},
-    {"auto_white_balance", (getter) svs_core_Camera_getauto_white_balance, (setter) svs_core_Camera_setauto_white_balance, "Auto White Balance", NULL},
-    {"color_correction", (getter) svs_core_Camera_getcolor_correction, (setter) svs_core_Camera_setcolor_correction, "IR color correction factor", NULL},
     {"continuous_capture", (getter) svs_core_Camera_getcontinuous_capture, (setter) svs_core_Camera_setcontinuous_capture,
         "Enable or disable camera continuous capture (free-run) mode.\n\n"
         "Once set to True, continuous capture is enabled, and methods\n"
