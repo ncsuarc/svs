@@ -45,6 +45,14 @@ class Camera(svs_core.Camera):
         These are optional, but both are required if either is passed:
             ip: IP address of camera to connect to.
             source_ip: IP address of local interface used for connection
+
+        buffer_count (optional): Number of internal buffers for SVGigE
+            streaming channels.
+        packet_size (optional): MTU packet size.
+        queue_length (optional): Maximum number of images to queue for
+            return by next().  Once this limit is reached, old images are
+            dropped from the queue.  A length of zero allows infinite
+            images to queue.
     """
 
     def __init__(self, *args, **kwargs):

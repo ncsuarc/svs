@@ -52,18 +52,13 @@ object and set the attributes of interest, then start image capture.
     >>> cam.continuous_capture = True   # Start image capture
 
 Once image capture is started, images will be queued up in the background.
-Use the next() method to grab the first image from the queue.  next() will
-raise SVSNoImagesError if there are no images currently available.
+Use the next() method to grab the first image from the queue.  The maximum
+number of images in the queue is specified with the `queue_length` argument
+to the Camera object.  When the queue is full, old images will be dropped
+to make room for new ones.  next() will raise SVSNoImagesError if there are
+no images currently available.
 
     >>> img, meta = cam.next()
-
-**Warning**: Using continuous capture, images will arrive continuously at the
-framerate specified, as long as it is supported by the camera.  These images
-are queued to be returned by the next().  If next() is not called, more and
-more images will enter the queue, consuming more and more memory.  Left
-unattended, this queue may consume all system memory.
-
-TODO: Add a maximum queue size.
 
 When finished capturing images, stop continuous capture.
 

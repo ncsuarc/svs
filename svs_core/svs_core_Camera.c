@@ -65,13 +65,21 @@ PyTypeObject svs_core_CameraType = {
     0,                         /* tp_setattro */
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "Camera([handle=0]) -> Camera object\n\n"
+    "Camera(ip, source_ip, [buffer_count=10, packet_size=9000,\n"
+    "       queue_length=50]) -> Camera object\n\n"
     "Wrapper object for the SVS-VISTEK SVGigE SDK.  Provides a simpler interface\n"
     "to use for controlling cameras.  Exposes various camera settings as\n"
     "attributes, and provides methods for capturing images from the camera.\n\n"
     "Arguments:\n"
-    "    handle: Camera handle to connect to.  Determine camera handle from\n"
-    "        svs_core.camera_list().",       /* tp_doc */
+    "   ip: IP address of camera to connect to.\n"
+    "   source_ip: IP address of local interface used for connection.\n"
+    "   buffer_count (optional): Number of internal buffers for SVGigE\n"
+    "       streaming channels.\n"
+    "   packet_size (optional): MTU packet size.\n"
+    "   queue_length (optional): Maximum number of images to queue for\n"
+    "       return by next().  Once this limit is reached, old images are\n"
+    "       dropped from the queue.  A length of zero allows infinite\n"
+    "       images to queue.\n",    /* tp_doc */
     0,                         /* tp_traverse */
     0,                         /* tp_clear */
     0,                         /* tp_richcompare */
@@ -108,7 +116,7 @@ static void svs_core_Camera_dealloc(svs_core_Camera *self) {
 
 static int svs_core_Camera_init(svs_core_Camera *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = {
-        "ip", "source_ip", "buffer_count", "packet_size", NULL
+        "ip", "source_ip", "buffer_count", "packet_size", "queue_length", NULL
     };
 
     const char *ip = NULL;
@@ -122,13 +130,17 @@ static int svs_core_Camera_init(svs_core_Camera *self, PyObject *args, PyObject 
     self->main_thread = PyGILState_GetThisThreadState();
     self->ready = NOT_READY;
     TAILQ_INIT(&self->images);
+    self->images_length = 0;
+    self->images_max = 50;
 
     /*
      * This means the definition is:
-     * def __init__(self, ip, source_ip, buffer_count=10, packet_size=9000):
+     * def __init__(self, ip, source_ip, buffer_count=10, packet_size=9000,
+     *              queue_length=50):
      */
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|II", kwlist,
-                &ip, &source_ip, &buffer_count, &packet_size)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "ss|III", kwlist,
+                &ip, &source_ip, &buffer_count, &packet_size,
+                &self->images_max)) {
         return -1;
     }
 

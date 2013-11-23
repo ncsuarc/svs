@@ -264,8 +264,18 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
         goto err_decref_info;
     }
 
+    /* Queue full, drop the first item */
+    if (self->images_max && self->images_length == self->images_max) {
+        struct image *image = TAILQ_FIRST(&self->images);
+        TAILQ_REMOVE(&self->images, image, entry);
+        Py_DECREF(image->array);
+        Py_DECREF(image->info);
+        self->images_length--;
+    }
+
     /* Add image to queue */
     TAILQ_INSERT_TAIL(&self->images, image, entry);
+    self->images_length++;
 
     /* Release the GIL */
     PyGILState_Release(gstate);
