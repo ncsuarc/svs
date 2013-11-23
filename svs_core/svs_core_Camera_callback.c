@@ -254,11 +254,13 @@ static SVGigE_RETURN svs_core_Camera_new_image(svs_core_Camera *self,
 
     image->info = image_info(self, svimage);
     if (!image->info) {
+        PyGILState_Release(gstate);
         goto err_free_image;
     }
 
     image->array = image_array(self, svimage);
     if (!image->array) {
+        PyGILState_Release(gstate);
         goto err_decref_info;
     }
 
