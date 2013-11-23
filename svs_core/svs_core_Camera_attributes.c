@@ -430,6 +430,60 @@ static int svs_core_Camera_setcontinuous_capture(svs_core_Camera *self,
     return 0;
 }
 
+static PyObject *svs_core_Camera_getframerate(svs_core_Camera *self, void *closure) {
+    float framerate;
+    int ret;
+
+    ret = Camera_getFrameRate(self->handle, &framerate);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    return PyFloat_FromDouble(framerate);
+}
+
+static int svs_core_Camera_setframerate(svs_core_Camera *self, PyObject *value, void *closure) {
+    float framerate;
+    int ret;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'framerate'");
+        return -1;
+    }
+
+    framerate = PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+
+    ret = Camera_setFrameRate(self->handle, framerate);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    return 0;
+}
+
+static PyObject *svs_core_Camera_getactual_framerate(svs_core_Camera *self, void *closure) {
+    float framerate;
+    int ret;
+
+    ret = StreamingChannel_getActualFrameRate(self->stream, &framerate);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    return PyFloat_FromDouble(framerate);
+}
+
+static int svs_core_Camera_setactual_framerate(svs_core_Camera *self, PyObject *value, void *closure) {
+    PyErr_SetString(PyExc_TypeError, "Cannot modify attribute 'actual_framerate'");
+    return -1;
+}
+
 PyGetSetDef svs_core_Camera_getseters[] = {
     {"info", (getter) svs_core_Camera_getinfo, (setter) svs_core_Camera_setinfo, "Camera info", NULL},
     {"name", (getter) svs_core_Camera_getname, (setter) svs_core_Camera_setname, "Camera manufacturer and name", NULL},
@@ -446,5 +500,13 @@ PyGetSetDef svs_core_Camera_getseters[] = {
         "Enable or disable camera continuous capture (free-run) mode.\n\n"
         "Once set to True, continuous capture is enabled, and methods\n"
         "to retrieve images can be called.", NULL},
+    {"framerate", (getter) svs_core_Camera_getframerate, (setter) svs_core_Camera_setframerate,
+        "Desired image capture framerate\n\n"
+        "Actual framerate may be slower than this value.\n"
+        "See actual_framerate for measured framerate.", NULL},
+    {"actual_framerate", (getter) svs_core_Camera_getactual_framerate, (setter) svs_core_Camera_setactual_framerate,
+        "Actual measured image capture framerate\n\n"
+        "Actual achieved framerate, based on measurement of received images.\n"
+        "Will not be valid until image capture is active.", NULL},
     {NULL}
 };
