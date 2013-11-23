@@ -1,8 +1,6 @@
 SVS Python Module
 ==================
 
-**This module is incomplete, and does not currently capture images.**
-
 A module for interfacing with SVS-VISTEK GigE machine vision cameras.
 This module wraps the SVGigE SDK, providing a convient Python interface
 to much of the SDK.  The svs.Camera object provides attributes for easily
@@ -21,6 +19,11 @@ Build requirements:
     * SDK version 1.4.19.51-4 Beta or higher is supported
     * The SDK can be acquired from 
         [SVS-VISTEK](http://www.svs-vistek.com/intl/en/index.php)
+    * The SDK should be installed in /usr/lib/ or /usr/local/lib/
+
+Known working cameras:
+
+* SVS-VISTEK GmbH SVS11002CSGEV2
 
 ## Building and installing
 
@@ -37,11 +40,62 @@ be necessary.
 
 ## Usage
 
+### Capturing images
+
 The svs module makes it easy to control a camera.  Just initialize the Camera
 object and set the attributes of interest, then start image capture.
 
     >>> import svs
     >>> cam = ids.Camera()
-    >>> cam.continuous_capture = True               # Start image capture
+    >>> cam.framerate = 1               # Capture 1 image per second
+    >>> cam.exposure = 50               # Exposure time in milliseconds
+    >>> cam.continuous_capture = True   # Start image capture
 
-You will be able to do more soon...
+Once image capture is started, images will be queued up in the background.
+Use the next() method to grab the first image from the queue.  next() will
+raise SVSNoImagesError if there are no images currently available.
+
+    >>> img, meta = cam.next()
+
+**Warning**: Using continuous capture, images will arrive continuously at the
+framerate specified, as long as it is supported by the camera.  These images
+are queued to be returned by the next().  If next() is not called, more and
+more images will enter the queue, consuming more and more memory.  Left
+unattended, this queue may consume all system memory.
+
+TODO: Add a maximum queue size.
+
+When finished capturing images, stop continuous capture.
+
+    >>> cam.continuous_capture = False
+
+You may wish to call next() until it raises SVSNoImagesError to flush the queue
+of remaining images.
+
+### Working with images
+
+The image returned by the next() method is a Numpy array containing the image
+data, either monochrome, or Bayer data, depending on the camera.  Several
+different modules can be used to manipulate and save the images.
+
+The [tiffutils](http://github.com/ncsuarc/tiffutils) module provides a method
+to save the images as valid DNG files, useful for saving raw Bayer images.
+
+    >>> import tiffutils
+    >>> tiffutils.save_dng(img, "test.dng", camera=cam.name,
+                           cfa_pattern=tiffutils.CFA_GRBG)
+
+OpenCV can be used to perform Bayer interpolation, for further data processing
+or saving in a more traditional format.
+
+    >>> import cv2
+    >>> rgb = cv2.cvtColor(img, cv2.COLOR_BAYER_GR2RGB)
+    >>> cv2.imwrite('cv2.png', rgb)
+
+If saving images as JPEG, it is important to note that cv2.imwrite expects an
+8-bit Numpy array, but the next() method will return a 16-bit Numpy array, so
+it needs to be converted before saving.
+
+    >>> import numpy as np
+    >>> rgb8 = np.right_shift(rgb, 8)
+    >>> cv2.imwrite('cv2.jpg', rgb8)
