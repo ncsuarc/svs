@@ -129,13 +129,39 @@ static int svs_core_Camera_setpixelclock(svs_core_Camera *self, PyObject *value,
 }
 
 static PyObject *svs_core_Camera_getgain(svs_core_Camera *self, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return NULL;
+    float gain;
+    int ret;
+
+    ret = Camera_getGain(self->handle, &gain);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    return PyFloat_FromDouble(gain);
 }
 
 static int svs_core_Camera_setgain(svs_core_Camera *self, PyObject *value, void *closure) {
-    PyErr_SetString(PyExc_NotImplementedError, "Not yet implemented");
-    return -1;
+    int ret;
+    float gain;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'exposure'");
+        return -1;
+    }
+
+    gain = PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+
+    ret = Camera_setGain(self->handle, gain);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    return 0;
 }
 
 static PyObject *svs_core_Camera_getexposure(svs_core_Camera *self, void *closure) {
@@ -410,7 +436,7 @@ PyGetSetDef svs_core_Camera_getseters[] = {
     {"width", (getter) svs_core_Camera_getwidth, (setter) svs_core_Camera_setwidth, "Image width", NULL},
     {"height", (getter) svs_core_Camera_getheight, (setter) svs_core_Camera_setheight, "Image height", NULL},
     {"pixelclock", (getter) svs_core_Camera_getpixelclock, (setter) svs_core_Camera_setpixelclock, "Pixel Clock of camera", NULL},
-    {"gain", (getter) svs_core_Camera_getgain, (setter) svs_core_Camera_setgain, "Hardware gain (individual RGB gains not yet supported)", NULL},
+    {"gain", (getter) svs_core_Camera_getgain, (setter) svs_core_Camera_setgain, "Camera gain (0..18dB)", NULL},
     {"exposure", (getter) svs_core_Camera_getexposure, (setter) svs_core_Camera_setexposure, "Exposure time in milliseconds", NULL},
     {"auto_exposure", (getter) svs_core_Camera_getauto_exposure, (setter) svs_core_Camera_setauto_exposure, "Auto exposure/gain", NULL},
     {"auto_exposure_min", (getter) svs_core_Camera_getauto_exposure_min, (setter) svs_core_Camera_setauto_exposure_min, "Minimum exposure for auto exposure (ms)", NULL},
