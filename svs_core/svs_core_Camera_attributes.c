@@ -492,7 +492,7 @@ PyGetSetDef svs_core_Camera_getseters[] = {
     {"pixelclock", (getter) svs_core_Camera_getpixelclock, (setter) svs_core_Camera_setpixelclock, "Pixel Clock of camera", NULL},
     {"gain", (getter) svs_core_Camera_getgain, (setter) svs_core_Camera_setgain, "Camera gain (0..18dB)", NULL},
     {"exposure", (getter) svs_core_Camera_getexposure, (setter) svs_core_Camera_setexposure, "Exposure time in milliseconds", NULL},
-    {"auto_exposure", (getter) svs_core_Camera_getauto_exposure, (setter) svs_core_Camera_setauto_exposure, "Auto exposure/gain", NULL},
+    {"auto_exposure", (getter) svs_core_Camera_getauto_exposure, (setter) svs_core_Camera_setauto_exposure, "Auto exposure/gain (exposure adjusted to limit, then gain used to limit)", NULL},
     {"auto_exposure_min", (getter) svs_core_Camera_getauto_exposure_min, (setter) svs_core_Camera_setauto_exposure_min, "Minimum exposure for auto exposure (ms)", NULL},
     {"auto_exposure_max", (getter) svs_core_Camera_getauto_exposure_max, (setter) svs_core_Camera_setauto_exposure_max, "Maximum exposure for auto exposure (ms)", NULL},
     {"auto_exposure_brightness", (getter) svs_core_Camera_getauto_exposure_brightness, (setter) svs_core_Camera_setauto_exposure_brightness, "Auto exposure reference brightness (0 to 1)", NULL},
