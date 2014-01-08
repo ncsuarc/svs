@@ -339,6 +339,94 @@ static int svs_core_Camera_setauto_exposure_max(svs_core_Camera *self, PyObject 
     return 0;
 }
 
+static PyObject *svs_core_Camera_getauto_gain_min(svs_core_Camera *self, void *closure) {
+    float min, max;
+    int ret;
+
+    ret = Camera_getAutoGainLimits(self->handle, &min, &max);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    return PyFloat_FromDouble(min);
+}
+
+static int svs_core_Camera_setauto_gain_min(svs_core_Camera *self, PyObject *value, void *closure) {
+    float min, max;
+    int ret;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'auto_gain_min'");
+        return -1;
+    }
+
+    /* Get current min/max */
+    ret = Camera_getAutoGainLimits(self->handle, &min, &max);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    min = PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+
+    /* Set new min, current max */
+    ret = Camera_setAutoGainLimits(self->handle, min, max);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    return 0;
+}
+
+static PyObject *svs_core_Camera_getauto_gain_max(svs_core_Camera *self, void *closure) {
+    float min, max;
+    int ret;
+
+    ret = Camera_getAutoGainLimits(self->handle, &min, &max);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    return PyFloat_FromDouble(max);
+}
+
+static int svs_core_Camera_setauto_gain_max(svs_core_Camera *self, PyObject *value, void *closure) {
+    float min, max;
+    int ret;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'auto_gain_max'");
+        return -1;
+    }
+
+    /* Get current min/max */
+    ret = Camera_getAutoGainLimits(self->handle, &min, &max);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    max = PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+
+    /* Set new max, current min */
+    ret = Camera_setAutoGainLimits(self->handle, min, max);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    return 0;
+}
+
 static PyObject *svs_core_Camera_getauto_exposure_brightness(svs_core_Camera *self, void *closure) {
     float brightness;
     int ret;
@@ -494,6 +582,8 @@ PyGetSetDef svs_core_Camera_getseters[] = {
     {"exposure", (getter) svs_core_Camera_getexposure, (setter) svs_core_Camera_setexposure, "Exposure time in milliseconds", NULL},
     {"auto_exposure", (getter) svs_core_Camera_getauto_exposure, (setter) svs_core_Camera_setauto_exposure, "Auto exposure/gain (exposure adjusted to limit, then gain used to limit)", NULL},
     {"auto_exposure_min", (getter) svs_core_Camera_getauto_exposure_min, (setter) svs_core_Camera_setauto_exposure_min, "Minimum exposure for auto exposure (ms)", NULL},
+    {"auto_gain_min", (getter) svs_core_Camera_getauto_gain_min, (setter) svs_core_Camera_setauto_gain_min, "Minimum gain for auto gain (dB)", NULL},
+    {"auto_gain_max", (getter) svs_core_Camera_getauto_gain_max, (setter) svs_core_Camera_setauto_gain_max, "Maximum gain for auto gain (dB)", NULL},
     {"auto_exposure_max", (getter) svs_core_Camera_getauto_exposure_max, (setter) svs_core_Camera_setauto_exposure_max, "Maximum exposure for auto exposure (ms)", NULL},
     {"auto_exposure_brightness", (getter) svs_core_Camera_getauto_exposure_brightness, (setter) svs_core_Camera_setauto_exposure_brightness, "Auto exposure reference brightness (0 to 1)", NULL},
     {"continuous_capture", (getter) svs_core_Camera_getcontinuous_capture, (setter) svs_core_Camera_setcontinuous_capture,
