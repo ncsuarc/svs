@@ -46,7 +46,7 @@ The svs module makes it easy to control a camera.  Just initialize the Camera
 object and set the attributes of interest, then start image capture.
 
     >>> import svs
-    >>> cam = ids.Camera()
+    >>> cam = svs.Camera()
     >>> cam.framerate = 1               # Capture 1 image per second
     >>> cam.exposure = 50               # Exposure time in milliseconds
     >>> cam.continuous_capture = True   # Start image capture
