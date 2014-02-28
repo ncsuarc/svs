@@ -146,7 +146,7 @@ static int svs_core_Camera_setgain(svs_core_Camera *self, PyObject *value, void 
     float gain;
 
     if (value == NULL) {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'exposure'");
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'gain'");
         return -1;
     }
 
