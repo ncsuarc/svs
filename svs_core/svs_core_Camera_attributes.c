@@ -465,6 +465,52 @@ static int svs_core_Camera_setauto_exposure_brightness(svs_core_Camera *self, Py
     return 0;
 }
 
+static PyObject *svs_core_Camera_getauto_exposure_dynamics(svs_core_Camera *self, void *closure) {
+    float i, d;
+    int ret;
+
+    ret = Camera_getAutoGainDynamics(self->handle, &i, &d);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return NULL;
+    }
+
+    return Py_BuildValue("(ff)", i, d);
+}
+
+static int svs_core_Camera_setauto_exposure_dynamics(svs_core_Camera *self, PyObject *value, void *closure) {
+    float i, d;
+    int ret;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete attribute 'auto_exposure_dynamics'");
+        return -1;
+    }
+
+    /* Provide nicer exceptions for bad type/tuple vs ParseTuple */
+    if (!PyTuple_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "Value should be a tuple in the form (I,D)");
+        return -1;
+    }
+
+    if (PyTuple_Size(value) != 2) {
+        PyErr_SetString(PyExc_ValueError, "Value should be a tuple in the form (I,D)");
+        return -1;
+    }
+
+    if (!PyArg_ParseTuple(value, "ff", &i, &d)) {
+        return -1;
+    }
+
+    ret = Camera_setAutoGainDynamics(self->handle, i, d);
+    if (ret != SVGigE_SUCCESS) {
+        raise_general_error(ret);
+        return -1;
+    }
+
+    return 0;
+}
+
 static PyObject *svs_core_Camera_getcontinuous_capture(svs_core_Camera *self,
                                                        void *closure) {
     int ret;
@@ -586,6 +632,14 @@ PyGetSetDef svs_core_Camera_getseters[] = {
     {"auto_gain_max", (getter) svs_core_Camera_getauto_gain_max, (setter) svs_core_Camera_setauto_gain_max, "Maximum gain for auto gain (dB)", NULL},
     {"auto_exposure_max", (getter) svs_core_Camera_getauto_exposure_max, (setter) svs_core_Camera_setauto_exposure_max, "Maximum exposure for auto exposure (ms)", NULL},
     {"auto_exposure_brightness", (getter) svs_core_Camera_getauto_exposure_brightness, (setter) svs_core_Camera_setauto_exposure_brightness, "Auto exposure reference brightness (0 to 1)", NULL},
+    {"auto_exposure_dynamics", (getter) svs_core_Camera_getauto_exposure_dynamics, (setter) svs_core_Camera_setauto_exposure_dynamics,
+        "Auto exposure dynamics (I, D)\n\n"
+        "I and D parameters used by the auto exposure PID\n"
+        "controller for adjusting exposure and gain to achieve the desired\n"
+        "brightness.\n\n"
+        "In the form of a tuple with the following values:\n"
+        "   I: Integral PID parameter\n"
+        "   D: Derivative PID parameter\n\n", NULL},
     {"continuous_capture", (getter) svs_core_Camera_getcontinuous_capture, (setter) svs_core_Camera_setcontinuous_capture,
         "Enable or disable camera continuous capture (free-run) mode.\n\n"
         "Once set to True, continuous capture is enabled, and methods\n"
